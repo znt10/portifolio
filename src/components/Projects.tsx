@@ -30,7 +30,7 @@ const projects = [
     description:
       "Site personalizado desenvolvido com HTML, hospedado na Vercel.",
     tech: ["HTML", "CSS", "JavaScript", "Vercel"],
-    live: "https://site-de-nenem.vercel.app",
+    live: "https://site-de-nenem-production.up.railway.app",
     github: "https://github.com/znt10/Site-de-nenem",
     image: "/projects/site-nenem.png",
     number: "03",
