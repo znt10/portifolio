@@ -3,61 +3,150 @@ export interface ProjectArchitectureSection {
   body: string;
 }
 
+export interface ProjectImage {
+  src: string;
+  caption: string;
+}
+
 export interface Project {
   slug: string;
   number: string;
   title: string;
   description: string;
   tech: string[];
-  live: string;
+  live?: string;
   github: string;
-  image: string;
+  images: ProjectImage[];
   overview: string;
   architecture: ProjectArchitectureSection[];
 }
 
 export const projects: Project[] = [
   {
-    slug: "matchcarreira",
+    slug: "marcai",
     number: "01",
-    title: "MatchCarreira",
+    title: "Marcai",
     description:
-      "Plataforma de recrutamento que conecta candidatos e empresas. Cadastro de vagas, perfis profissionais e autenticação via NextAuth.",
-    tech: ["Next.js", "React", "TypeScript", "MongoDB", "NextAuth.js", "Tailwind CSS"],
-    live: "https://nextjs-fullstack-rosy.vercel.app",
-    github: "https://github.com/znt10/matchcarreira",
-    image: "/projects/matchcarreira.png",
+      "SaaS de agendamento para barbearias, uma barbearia por subdomínio. O cliente marca sozinho pelo celular e recebe a confirmação no WhatsApp.",
+    tech: [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "Django",
+      "Celery",
+      "PostgreSQL (RLS)",
+      "Redis",
+      "Docker",
+    ],
+    live: "https://usemarcai.online",
+    github: "https://github.com/znt10/Marcai",
+    images: [
+      {
+        src: "/projects/marcai/01.webp",
+        caption: "Agenda do dia, no painel de quem trabalha na barbearia",
+      },
+      {
+        src: "/projects/marcai/02.webp",
+        caption: "Conexão do WhatsApp da casa por leitura de QR",
+      },
+    ],
     overview:
-      "Plataforma fullstack que conecta candidatos e empresas, permitindo que candidatos montem perfis profissionais e busquem vagas, empresas publiquem oportunidades e administradores gerenciem usuários e vagas da plataforma.",
+      "Agenda para barbearias de bairro, servida como SaaS multi-tenant: cada casa entra no ar no próprio subdomínio, com vitrine pública, agenda por barbeiro e confirmação automática no WhatsApp do cliente.",
     architecture: [
       {
-        heading: "Fullstack no App Router",
-        body: "Next.js (App Router) concentra frontend e backend no mesmo projeto: rotas de API implementam o CRUD de vagas, empresas e perfis, consumidas pelos mesmos componentes React que renderizam a interface.",
+        heading: "Uma barbearia por subdomínio",
+        body: "Cada casa é um tenant servido no próprio endereço. O isolamento não fica só na tela: é aplicado no Postgres com Row Level Security, então uma consulta que escape do filtro da aplicação ainda não alcança os dados de outra barbearia.",
       },
       {
-        heading: "Dados e persistência",
-        body: "MongoDB Atlas como banco NoSQL na nuvem, modelado com Mongoose. A escolha de um schema flexível encaixa bem com perfis de candidato e vaga que variam bastante em campos preenchidos.",
+        heading: "Front e back em processos separados",
+        body: "Next.js 16 (App Router) cuida da vitrine pública e do painel; a API em Django + DRF cuida das regras. Os dois falam com o mesmo Postgres, mas só o backend cria e migra o schema — o contrato entre eles é HTTP, não o banco.",
       },
       {
-        heading: "Autenticação e papéis",
-        body: "NextAuth.js gerencia sessão e login, com senhas hasheadas via BcryptJS. Um sistema de roles (candidato, empresa, admin) controla o acesso a rotas privadas e ao dashboard administrativo.",
+        heading: "WhatsApp e tarefas assíncronas",
+        body: "As mensagens saem pela Evolution API, orquestradas por Celery (worker e beat) com Redis como broker: confirmação na hora da marcação, lembrete entre 50 e 60 minutos antes do horário — uma vez só — e healthcheck da sessão do WhatsApp.",
       },
       {
-        heading: "Estado atual",
-        body: "Cadastro, login, CRUD de vagas e perfis de candidato/empresa estão funcionais; o fluxo de recuperação de senha por token ainda está em desenvolvimento.",
+        heading: "Papéis e sessão",
+        body: "Plataforma, dono e barbeiro enxergam recortes diferentes, e a fronteira é aplicada na API, não no componente. A sessão é um JWT assinado com PyJWT do lado do Django e verificado com jose do lado do Next, com as senhas em argon2id — os dois lados leem o hash um do outro sem combinar nada.",
+      },
+    ],
+  },
+  {
+    slug: "fechacaixa",
+    number: "02",
+    title: "FechaCaixa",
+    description:
+      "Fechamento de caixa para redes de lojas: o celular da loja lança o turno sem login e a gerência confere, corrige e acompanha tudo pelo painel.",
+    tech: [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "TanStack Query",
+      "Zustand",
+      "Tailwind CSS 4",
+      "Django REST Framework",
+      "MySQL",
+      "Docker",
+    ],
+    live: "https://fecha-caixa-front.vercel.app",
+    github: "https://github.com/znt10/FechaCaixa",
+    images: [
+      {
+        src: "/projects/fechacaixa/01.webp",
+        caption: "Tela da empresa: código de acesso, lojas, gerentes e funcionários",
+      },
+      {
+        src: "/projects/fechacaixa/02.webp",
+        caption: "Notas fiscais: os XMLs da compra viram gasto classificado",
+      },
+    ],
+    overview:
+      "Sistema de fechamento de caixa para empresas com várias lojas. Resolve o problema em duas metades propositalmente diferentes: um formulário de balcão, rápido e sem login, e um painel de gestão com conferência, saídas, gráficos e notas fiscais.",
+    architecture: [
+      {
+        heading: "Duas metades, um só sistema",
+        body: "O formulário roda no celular da loja e não tem login: o aparelho digita uma vez o código de acesso da empresa e dali em diante só lança o caixa do turno, instalável como PWA. O painel é da gerência e tem login. Separar os dois evita pedir senha a quem está com a máquina na mão.",
+      },
+      {
+        heading: "Sessão em cookie HTTP-only",
+        body: "A autenticação usa JWT guardado em cookie HTTP-only definido pelo backend — o token nunca vai no corpo da resposta nem passa pelo JavaScript. A empresa do aparelho vem sempre do cookie, nunca de um parâmetro na URL, que era justamente o que permitia ler as lojas de outra empresa.",
+      },
+      {
+        heading: "Dados do servidor no cliente",
+        body: "TanStack Query com persistência cuida do cache e da sincronia dos dados do servidor, e o Zustand guarda só o estado local de sessão. A divisão mantém o painel utilizável em conexão ruim de loja, sem duplicar o estado do servidor num store global.",
+      },
+      {
+        heading: "Notas fiscais e relatórios",
+        body: "Os XMLs das compras sobem em lote e viram gastos classificados por loja e categoria. A API em Django REST sobre MySQL exporta o período em planilha e PDF, e o ambiente inteiro sobe por Docker Compose, que aplica migrations, cria os grupos de acesso e o admin no boot.",
       },
     ],
   },
   {
     slug: "unistock",
-    number: "02",
+    number: "03",
     title: "Unistock",
     description:
       "Sistema web de gerenciamento de estoque, produtos e pedidos. Arquitetura separada com frontend e backend independentes.",
-    tech: ["Next.js", "React", "TypeScript", "Zustand", "Django REST Framework", "MySQL", "Docker"],
-    live: "https://5-periodo.vercel.app",
+    tech: [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Zustand",
+      "Django REST Framework",
+      "MySQL",
+      "Docker",
+    ],
     github: "https://github.com/znt10/Unistock_Front",
-    image: "/projects/unistock.png",
+    images: [
+      {
+        src: "/projects/unistock/01.webp",
+        caption: "Gestão de unidades: as lojas usadas nos pedidos e no estoque",
+      },
+      {
+        src: "/projects/unistock/02.webp",
+        caption: "Catálogo de produtos organizado por categoria",
+      },
+    ],
     overview:
       "Sistema de gerenciamento de lojas, produtos, estoque e pedidos, construído como dois projetos independentes que se comunicam por API REST.",
     architecture: [
@@ -76,37 +165,6 @@ export const projects: Project[] = [
       {
         heading: "Infraestrutura",
         body: "O backend roda containerizado via Docker Compose, o que automatiza migrations, criação de grupos e do usuário admin padrão ao subir o ambiente. A API expõe documentação via schema/Swagger.",
-      },
-    ],
-  },
-  {
-    slug: "croche-atelie-de-luxo",
-    number: "03",
-    title: "Crochê e Ateliê de Luxo",
-    description:
-      "Loja virtual para venda de peças em crochê feitas à mão, com catálogo por categorias e pedidos finalizados via WhatsApp.",
-    tech: ["Django", "MySQL", "Docker", "Gunicorn", "AWS S3"],
-    live: "https://site-de-nenem-production.up.railway.app",
-    github: "https://github.com/znt10/Site-de-nenem",
-    image: "/projects/site-nenem.png",
-    overview:
-      "Loja virtual construída sobre um catálogo de produtos genérico em Django, reaproveitável para diferentes nichos de venda por WhatsApp — nesta instância, configurada para peças de crochê feitas à mão.",
-    architecture: [
-      {
-        heading: "Monolito Django com painel próprio",
-        body: "Aplicação Django com painel administrativo customizado (django-admin-interface), onde o lojista cadastra produtos, categorias, preços e imagens de destaque sem precisar mexer em código.",
-      },
-      {
-        heading: "Mídia e armazenamento",
-        body: "As imagens de produto sobem para um bucket S3 via django-storages/boto3, em vez de ficarem no disco do servidor — importante porque a infraestrutura roda em containers efêmeros.",
-      },
-      {
-        heading: "Checkout via WhatsApp",
-        body: "Não existe carrinho ou pagamento no site: ao clicar em \"Pedir no WhatsApp\", o cliente é redirecionado com uma mensagem pré-formatada contendo nome, preço e link do produto, via link wa.me.",
-      },
-      {
-        heading: "Deploy",
-        body: "Empacotado com Dockerfile, servido por Gunicorn com WhiteNoise para os estáticos, e implantado no Railway. Nome da loja e número de WhatsApp são configuráveis por variável de ambiente, o que permite reaproveitar o mesmo código para lojas diferentes.",
       },
     ],
   },

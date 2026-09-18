@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
+import ProjectCarousel from "./ProjectCarousel";
 import type { Project } from "@/data/projects";
 
 export default function ProjectDetail({ project }: { project: Project }) {
@@ -38,23 +38,14 @@ export default function ProjectDetail({ project }: { project: Project }) {
             {project.overview}
           </p>
 
-          <a
-            href={project.live}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block relative aspect-[16/10] rounded-sm overflow-hidden border border-border hover:border-accent/40 transition-all duration-700 mt-10"
-          >
-            <Image
-              src={project.image}
-              alt={`Screenshot do projeto ${project.title}`}
-              fill
+          <div className="mt-10">
+            <ProjectCarousel
+              images={project.images}
+              title={project.title}
               sizes="(min-width: 768px) 768px, 100vw"
-              className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+              priority
             />
-            <div className="absolute inset-0 bg-background/30 group-hover:bg-transparent transition-all duration-500" />
-            <div className="absolute top-4 left-4 w-8 h-8 border-l border-t border-white/20 group-hover:border-accent/60 transition-colors duration-500" />
-            <div className="absolute bottom-4 right-4 w-8 h-8 border-r border-b border-white/20 group-hover:border-accent/60 transition-colors duration-500" />
-          </a>
+          </div>
 
           <div className="flex flex-wrap gap-2 mt-8">
             {project.tech.map((t) => (
@@ -68,30 +59,32 @@ export default function ProjectDetail({ project }: { project: Project }) {
           </div>
 
           <div className="flex gap-4 mt-8">
-            <a
-              href={project.live}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors group/link"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {project.live && (
+              <a
+                href={project.live}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-foreground hover:text-accent transition-colors group/link"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                />
-              </svg>
-              Ver ao Vivo
-              <span className="inline-block transition-transform group-hover/link:translate-x-1">
-                &rarr;
-              </span>
-            </a>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                  />
+                </svg>
+                Ver ao Vivo
+                <span className="inline-block transition-transform group-hover/link:translate-x-1">
+                  &rarr;
+                </span>
+              </a>
+            )}
             <a
               href={project.github}
               target="_blank"
@@ -108,7 +101,7 @@ export default function ProjectDetail({ project }: { project: Project }) {
 
         <div className="mt-20 space-y-10">
           <span className="font-mono text-xs text-accent tracking-[0.4em] uppercase">
-            // arquitetura
+            {"// arquitetura"}
           </span>
 
           {project.architecture.map((section, i) => (
