@@ -38,7 +38,7 @@ export const projects: Project[] = [
       "Redis",
       "Docker",
     ],
-    live: "https://usemarcai.online",
+    live: "https://teste.usemarcai.online",
     github: "https://github.com/znt10/Marcai",
     images: [
       {
@@ -88,7 +88,7 @@ export const projects: Project[] = [
       "MySQL",
       "Docker",
     ],
-    live: "https://fecha-caixa-front.vercel.app",
+    live: "https://fechacaixa.io",
     github: "https://github.com/znt10/FechaCaixa",
     images: [
       {
@@ -136,6 +136,7 @@ export const projects: Project[] = [
       "MySQL",
       "Docker",
     ],
+    live: "https://unistock.online",
     github: "https://github.com/znt10/Unistock_Front",
     images: [
       {
